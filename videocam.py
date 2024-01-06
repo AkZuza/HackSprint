@@ -6,13 +6,12 @@ import threading
 
 st.title("Webcam Live Feed")
 run = st.checkbox('Run')
-am= st.radio("select mode",["Autonomous","Manual"])
+run = True
+# am= st.radio("select mode",["Autonomous","Manual"])
 FRAME_WINDOW = st.image([])
 
-tsm = YOLO('D:/dev/HackSprint/traffic_sign.pt')
-yolo = YOLO('yolov8m.pt')
+tsm = YOLO('traffic_sign.pt')
 tsm.to('cuda')
-yolo.to('cuda')
 
 class VideoGet:
     """

@@ -3,7 +3,9 @@ import torch
 
 
 if __name__ == '__main__':
-    model = YOLO('traffic_sign.pt')
+    model = YOLO('yolov8m.pt')
     model.to('cuda')
     
-    model.predict(source='test2.png.jpg', save=True, show=True)
+    model.train(source='Data/TrafficRoadSign/data.yaml', workers=8, epochs=100, batch=4, device=1)
+    model.val()
+    model.export()
