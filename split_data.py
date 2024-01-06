@@ -1,6 +1,9 @@
 from os import listdir, makedirs
 from os.path import isfile, join
 from shutil import copy
+from xml.dom.minidom import parse
+import bs4
+import xml.etree.ElementTree as et
 
 # to split lists in a ratio
 def list_splitter(list_to_split, ratio):
@@ -30,23 +33,49 @@ else:
 rs_a_train, rs_a_test = list_splitter(rs_ao, 0.8)
 rs_i_train, rs_i_test = list_splitter(rs_io, 0.8)
 
+# create ids for each object name in RoadSign
+classes = dict()
+for file_path in rs_ao:
+    root = et.parse(file_path)
+    width = float(root.find('width').text)
+    height = float(root.find('height').text)
+    objs = []
+    for child in root.iter('name'):
+        if child.text not in classes.keys():
+            classes[child.text] = len(classes)  
+            xmin = float(child.find('xmin').text)
+            xmin = xmin/width
+            xmax = float(child.find('xmax').text) 
+            xmax = xmax/width
+            ymin = float(child.find('ymin').text) 
+            ymin = ymin/height
+            ymax = float(child.find('ymax').text)
+            ymax = ymax/height
+
+            of = file_path[:len(file_path)-3] + 'txt'
+            f = open(of, 'w')
+            
+            li = f'{classes[child.text]} {xmin} {ymin} {xmax} {ymax}\n'
+            f.write(li)
+            f.close()
+
 # training
-makedirs('Data/RoadSign/Train/annotations', exist_ok=True)
-makedirs('Data/RoadSign/Train/images', exist_ok=True)
+makedirs('Data/RoadSign/train/annotations', exist_ok=True)
+makedirs('Data/RoadSign/train/images', exist_ok=True)
 for file in rs_a_train:
-    copy(file, 'Data/RoadSign/Train/annotations')
+    copy(file, 'Data/RoadSign/train/annotations')
 for file in rs_i_train:
-    copy(file, 'Data/RoadSign/Train/images')
+    copy(file, 'Data/RoadSign/train/images')
 
 
 
 # for testing
-makedirs('Data/RoadSign/Test/annotations', exist_ok=True)
-makedirs('Data/RoadSign/Test/images', exist_ok=True)
+makedirs('Data/RoadSign/validation/annotations', exist_ok=True)
+makedirs('Data/RoadSign/validation/images', exist_ok=True)
 for file in rs_a_test:
-    copy(file, 'Data/RoadSign/Test/annotations')
+    copy(file, 'Data/RoadSign/validation/annotations')
 for file in rs_i_test:
-    copy(file, 'Data/RoadSign/Test/images')
+    copy(file, 'Data/RoadSign/validation/images')
 
 
 
